@@ -1,0 +1,25 @@
+name: Test FTP Connection
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  ftp-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mostrar IP pública del runner (opcional)
+        run: |
+          echo "Esta es la IP pública del runner (por si tu hosting requiere whitelist):"
+          curl -s https://api.ipify.org && echo
+
+      - name: Probar conexión FTPS y listar public_html
+        env:
+          FTP_USER: ${{ secrets.FTP_USER }}
+          FTP_PASS: ${{ secrets.FTP_PASS }}
+          FTP_HOST: ${{ vars.FTP_HOST }}
+        run: |
+          echo "Intentando conexión FTPS a $FTP_HOST:21 ..."
+          curl -v --ssl-reqd --ftp-ssl --ftp-pasv --disable-epsv \
+            -u "$FTP_USER:$FTP_PASS" \
+            -k \
+            "ftp://$FTP_HOST/public_html/" | head -n 50
